@@ -1,6 +1,6 @@
 # Projects
 
-A single index of the things I have built, with what each one does, how it works, and where the code lives. The three native Mac apps at the top are the ones I use every day; the four systems below them each started as a question about how software behaves under load, noise or adversarial input.
+A single index of the things I have built, with what each one does, how it works, and where the code lives. The three native Mac apps at the top are the ones I use every day; FleetOS and Ignition are tools for real-time and local-AI work; the four systems after them each started as a question about how software behaves under load, noise or adversarial input.
 
 Each folder in this repo holds the full README for that project, so the write-ups stay together even as the individual repos move on.
 
@@ -9,10 +9,12 @@ Each folder in this repo holds the full README for that project, so the write-up
 | 01 | [Jarvis](#01--jarvis) | Voice assistant that lives in the MacBook notch, with Claude as the brain and permissions enforced in code | Swift, SwiftUI, ONNX Runtime, Claude API | [samarthpaliwal/Jarvis](https://github.com/samarthpaliwal/Jarvis) |
 | 02 | [MacStream](#02--macstream) | Mac to iPad screen streaming at 20 ms end to end, with touch, Pencil and keyboard control flowing back | Swift, VideoToolbox, ScreenCaptureKit, Network.framework | [samarthpaliwal/MacStream](https://github.com/samarthpaliwal/MacStream) |
 | 03 | [Spotify Widget](#03--spotify-widget) | A vinyl record on the macOS desktop that spins with the current Spotify track | Electron, TypeScript, AppleScript | [samarthpaliwal/SpotifyWidget](https://github.com/samarthpaliwal/SpotifyWidget) |
-| 04 | [Adaptive market-making simulator](#04--adaptive-market-making-simulator) | Quotes both sides of a market while volatility shifts underneath it | Python, asyncio | [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samarthpaliwal/adaptive-market-making-simulator) |
-| 05 | [Event-processing platform](#05--event-processing-platform) | Distributed pipeline that ingests, validates and routes high-volume event streams | Python, asyncio, Docker, AWS | [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliwal/event-processing-platform) |
-| 06 | [RAG-based AI assistant](#06--rag-based-ai-assistant) | Retrieval-augmented assistant with an evaluation harness built in from the start | Python, LangChain, vector DB | [samarthpaliwal/nova-ai](https://github.com/samarthpaliwal/nova-ai) |
-| 07 | [Credit card fraud detection](#07--credit-card-fraud-detection) | Real-time anomaly scoring tuned on the precision/recall trade-off | Python, scikit-learn, Pandas | [samarthpaliwal/CreditCardFraud](https://github.com/samarthpaliwal/CreditCardFraud) |
+| 04 | [FleetOS](#04--fleetos) | React/TypeScript command dashboard for a simulated 50-robot fleet over WebSockets | React 18, TypeScript, Vite, Node.js, ws | [samarthpaliwal/robotics-fleet-ui](https://github.com/samarthpaliwal/robotics-fleet-ui) |
+| 05 | [Ignition](#05--ignition) | Desktop tool that runs two local LLMs side by side and shows their plan steps as an editable, re-runnable graph | Python, PySide6, llama.cpp, Ollama | [samarthpaliwal/Ignition](https://github.com/samarthpaliwal/Ignition) |
+| 06 | [Adaptive market-making simulator](#06--adaptive-market-making-simulator) | Quotes both sides of a market while volatility shifts underneath it | Python, asyncio | [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samarthpaliwal/adaptive-market-making-simulator) |
+| 07 | [Event-processing platform](#07--event-processing-platform) | Distributed pipeline that ingests, validates and routes high-volume event streams | Python, asyncio, Docker, AWS | [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliwal/event-processing-platform) |
+| 08 | [RAG-based AI assistant](#08--rag-based-ai-assistant) | Retrieval-augmented assistant with an evaluation harness built in from the start | Python, LangChain, vector DB | not yet public |
+| 09 | [Credit card fraud detection](#09--credit-card-fraud-detection) | Real-time anomaly scoring tuned on the precision/recall trade-off | Python, scikit-learn, Pandas | [samarthpaliwal/CreditCardFraud](https://github.com/samarthpaliwal/CreditCardFraud) |
 
 Portfolio site: [samarthpaliwal.github.io](https://samarthpaliwal.github.io/projects.html)
 
@@ -74,7 +76,35 @@ Full write-up: [spotify-widget/README.md](spotify-widget/README.md) · Code: [sa
 
 ---
 
-## 04 · Adaptive market-making simulator
+## 04 · FleetOS
+
+**A fleet command dashboard for autonomous robots.** A Node.js WebSocket server simulates 50 robots and streams battery, temperature, position, velocity and status about five times a second per robot. The React 18 and TypeScript front end shows the fleet as a card grid, opens a live detail panel with a rolling battery chart, and sends START, STOP, RETURN_TO_BASE and EMERGENCY_STOP commands back with optimistic updates and server acknowledgements.
+
+**Problem.** A dashboard fed by 250 messages a second will either re-render itself to death or fall behind, and it has to survive the server disappearing without the operator noticing.
+
+**Approach.** A framework-free WebSocket service owns the socket: JSON validation, a 15 s heartbeat and reconnection with exponential backoff (1 s base, 30 s cap, jitter). Updates are batched and throttled into a reducer-backed store before React sees them. Commands apply optimistically and reconcile on the ack.
+
+**Result.** Smooth at 50 robots and 5 Hz each, error-state robots sorted first, and a server restart that reconnects by itself.
+
+Code: [samarthpaliwal/robotics-fleet-ui](https://github.com/samarthpaliwal/robotics-fleet-ui)
+
+---
+
+## 05 · Ignition
+
+**Two local language models, side by side.** A single-file PySide6 desktop app where each panel loads a GGUF model through llama-cpp-python, talks to an Ollama model, or runs a mock backend. A run asks the model for a numbered plan, one note per step, then a streamed final answer.
+
+**Problem.** Reading two models' answers tells you who got it right, not where their reasoning diverged. Editing the prompt and re-running from scratch loses the thread you were pulling on.
+
+**Approach.** Plan steps are drawn as nodes in a zoomable graph. Editing one re-runs only what follows it and diffs the resulting answer. A token-overlap "why" heatmap shows which steps the final answer leans on (a proxy, not model attention). Guardrail slider, source grounding, session save and load, PNG export, and an A/B bench that writes `bench_results.json`.
+
+**Result.** Side-by-side traces for gpt-oss-20b and gpt-oss-120b class models running locally, with no cloud dependency.
+
+Code: [samarthpaliwal/Ignition](https://github.com/samarthpaliwal/Ignition)
+
+---
+
+## 06 · Adaptive market-making simulator
 
 A financial simulation engine that quotes both sides of a market while volatility shifts underneath it, built to test whether an adaptive spread beats a fixed one.
 
@@ -88,7 +118,7 @@ Code: [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samar
 
 ---
 
-## 05 · Event-processing platform
+## 07 · Event-processing platform
 
 A distributed pipeline that ingests, validates and routes high-volume event streams, deployed on AWS with a CI/CD path from commit to container.
 
@@ -102,7 +132,7 @@ Code: [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliw
 
 ---
 
-## 06 · RAG-based AI assistant
+## 08 · RAG-based AI assistant
 
 A retrieval-augmented generation assistant with an evaluation harness built in from the start, so every change to retrieval or prompting is measured rather than eyeballed.
 
@@ -112,11 +142,11 @@ A retrieval-augmented generation assistant with an evaluation harness built in f
 
 **Result.** Measurably fewer hallucinated and irrelevant responses across the test query sets after each retrieval and prompt iteration.
 
-Code: [samarthpaliwal/nova-ai](https://github.com/samarthpaliwal/nova-ai)
+Code: not yet public.
 
 ---
 
-## 07 · Credit card fraud detection
+## 09 · Credit card fraud detection
 
 An anomaly-detection service that scores transactions in real time, tuned for the precision and recall trade-off that fraud teams actually live with.
 
