@@ -11,10 +11,11 @@ Each folder in this repo holds the full README for that project, so the write-up
 | 03 | [Spotify Widget](#03--spotify-widget) | A vinyl record on the macOS desktop that spins with the current Spotify track | Electron, TypeScript, AppleScript | [samarthpaliwal/SpotifyWidget](https://github.com/samarthpaliwal/SpotifyWidget) |
 | 04 | [FleetOS](#04--fleetos) | React/TypeScript command dashboard for a simulated 50-robot fleet over WebSockets | React 18, TypeScript, Vite, Node.js, ws | [samarthpaliwal/robotics-fleet-ui](https://github.com/samarthpaliwal/robotics-fleet-ui) |
 | 05 | [Ignition](#05--ignition) | Desktop tool that runs two local LLMs side by side and shows their plan steps as an editable, re-runnable graph | Python, PySide6, llama.cpp, Ollama | [samarthpaliwal/Ignition](https://github.com/samarthpaliwal/Ignition) |
-| 06 | [Adaptive market-making simulator](#06--adaptive-market-making-simulator) | Quotes both sides of a market while volatility shifts underneath it | Python, asyncio | [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samarthpaliwal/adaptive-market-making-simulator) |
-| 07 | [Event-processing platform](#07--event-processing-platform) | Distributed pipeline that ingests, validates and routes high-volume event streams | Python, asyncio, Docker, AWS | [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliwal/event-processing-platform) |
-| 08 | [RAG-based AI assistant](#08--rag-based-ai-assistant) | Retrieval-augmented assistant with an evaluation harness built in from the start | Python, LangChain, vector DB | not yet public |
-| 09 | [Credit card fraud detection](#09--credit-card-fraud-detection) | Real-time anomaly scoring tuned on the precision/recall trade-off | Python, scikit-learn, Pandas | [samarthpaliwal/CreditCardFraud](https://github.com/samarthpaliwal/CreditCardFraud) |
+| 06 | [Contraband](#06--contraband) | Room-code party game for 3 to 12 phones: hide a secret word, vote, accuse. Server-authoritative WebSockets | Node.js, ws, vanilla JS, Docker | [samarthpaliwal/Coding_Game_Project](https://github.com/samarthpaliwal/Coding_Game_Project) |
+| 07 | [Adaptive market-making simulator](#07--adaptive-market-making-simulator) | Quotes both sides of a market while volatility shifts underneath it | Python, asyncio | [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samarthpaliwal/adaptive-market-making-simulator) |
+| 08 | [Event-processing platform](#08--event-processing-platform) | Distributed pipeline that ingests, validates and routes high-volume event streams | Python, asyncio, Docker, AWS | [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliwal/event-processing-platform) |
+| 09 | [RAG-based AI assistant](#09--rag-based-ai-assistant) | Retrieval-augmented assistant with an evaluation harness built in from the start | Python, LangChain, vector DB | not yet public |
+| 10 | [Credit card fraud detection](#10--credit-card-fraud-detection) | Real-time anomaly scoring tuned on the precision/recall trade-off | Python, scikit-learn, Pandas | [samarthpaliwal/CreditCardFraud](https://github.com/samarthpaliwal/CreditCardFraud) |
 
 Portfolio site: [samarthpaliwal.github.io](https://samarthpaliwal.github.io/projects.html)
 
@@ -104,7 +105,21 @@ Code: [samarthpaliwal/Ignition](https://github.com/samarthpaliwal/Ignition)
 
 ---
 
-## 06 · Adaptive market-making simulator
+## 06 · Contraband
+
+**A room-code party game for 3 to 12 people.** Everyone plays on their own phone, nobody installs anything, nobody logs in. One person creates a room, the rest type a four-letter code or scan the QR. Everyone answers the same ridiculous prompt; a secret few are smugglers whose answer must hide an assigned word. Vote for the funniest answer, then accuse the smugglers. Laughs and getaways both score. About 15 minutes at six players.
+
+**Problem.** Phone-based party games fall apart on refresh, leak secrets to the wrong screen, and show the reveal on each phone a beat apart.
+
+**Approach.** The server is the only authority: phones send intents (`submit`, `vote`, `accuse`, `wiretap`), the server validates and broadcasts each player a view containing only what that player may know, and a unit test asserts the secrecy. A seat token in localStorage re-attaches a refreshed phone to its seat with draft, role and vote intact. Timers live on the server; clients render countdowns from a clock offset measured with a ping burst, so reveals flip in the same beat on every screen and the TV. Rooms are game-agnostic modules, so a second game is a file in `server/games/`.
+
+**Result.** No build step, no framework, one runtime dependency (`ws`). Unit tests for rules, scoring, a secrecy leak test and a full game over WebSockets; an end-to-end test drives three phones and a TV through a whole night in headless Chromium. One-click deploy to Render or Koyeb, Dockerfile for anything else, optional Claude-generated prompt cards when an API key is present.
+
+Code: [samarthpaliwal/Coding_Game_Project](https://github.com/samarthpaliwal/Coding_Game_Project)
+
+---
+
+## 07 · Adaptive market-making simulator
 
 A financial simulation engine that quotes both sides of a market while volatility shifts underneath it, built to test whether an adaptive spread beats a fixed one.
 
@@ -118,7 +133,7 @@ Code: [samarthpaliwal/adaptive-market-making-simulator](https://github.com/samar
 
 ---
 
-## 07 · Event-processing platform
+## 08 · Event-processing platform
 
 A distributed pipeline that ingests, validates and routes high-volume event streams, deployed on AWS with a CI/CD path from commit to container.
 
@@ -132,7 +147,7 @@ Code: [samarthpaliwal/event-processing-platform](https://github.com/samarthpaliw
 
 ---
 
-## 08 · RAG-based AI assistant
+## 09 · RAG-based AI assistant
 
 A retrieval-augmented generation assistant with an evaluation harness built in from the start, so every change to retrieval or prompting is measured rather than eyeballed.
 
@@ -146,7 +161,7 @@ Code: not yet public.
 
 ---
 
-## 09 · Credit card fraud detection
+## 10 · Credit card fraud detection
 
 An anomaly-detection service that scores transactions in real time, tuned for the precision and recall trade-off that fraud teams actually live with.
 
